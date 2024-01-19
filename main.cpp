@@ -5,6 +5,9 @@
 #include <cstring>
 #include <portaudio.h>
 #include <iostream>
+#include "Equalizer.hpp"
+
+bool reverb = false;
 
 static void checkError(PaError err)
 {
@@ -22,7 +25,8 @@ static float max(float a, float b)
 static int callback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
                     const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
 {
-    float* in = (float*)inputBuffer;
+    auto *eq = (Equalizer*)userData;
+    auto* in = (float*)inputBuffer;
 
     int dispSize = 100;
     printf("\r");
@@ -50,15 +54,33 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
 
     fflush(stdout);
 
-    memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
+    if (eq->isActive()) {
+        eq->processBuffer((float*)inputBuffer);
+    }
+    if (reverb) {
+        for (int i = 0; i < framesPerBuffer * 2; i++) {
+            ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * (float)0.6 + ((float *)outputBuffer)[i] * (float)0.65;
+        }
+    } else {
+        memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
+    }
+
+
+    //memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
 
     return 0;
 }
 
 int main()
 {
+    std::cout << sizeof(float) << std::endl;
+    std::cout << sizeof(double) << std::endl;
+
     PaError err = Pa_Initialize();
     checkError(err);
+
+    Equalizer eq;
+    eq.initializeCoefficients();
 
     int command_output = system("pacmd load-module module-null-sink sink_name=ShowTime_Virtual_Input sink_properties=device.description=ShowTime_Virtual_Input");
 
@@ -110,8 +132,9 @@ int main()
     outputParameters.suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowOutputLatency;
 
 
+
     PaStream *stream;
-    err = Pa_OpenStream(&stream, &inputParameters, &outputParameters, 44100, 256, paClipOff, callback, nullptr);
+    err = Pa_OpenStream(&stream, &inputParameters, &outputParameters, 44100, 1024, paClipOff, callback, &eq);
     checkError(err);
 
     err = Pa_StartStream(stream);
@@ -121,6 +144,11 @@ int main()
     while (std::getline(std::cin, line) && !std::cin.eof()) {
         if (line == "exit")
             break;
+        else if (line == "eq") {
+            eq.setActive(!eq.isActive());
+        } else if (line == "reverb") {
+            reverb = !reverb;
+        }
     }
 
     err = Pa_StopStream(stream);

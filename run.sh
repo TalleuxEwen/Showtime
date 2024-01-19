@@ -7,4 +7,4 @@ make
 mv Showtime ../
 cd ..
 
-./Showtime
+./Showtime 2> output
