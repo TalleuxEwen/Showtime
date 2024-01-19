@@ -60,6 +60,13 @@ int main()
     PaError err = Pa_Initialize();
     checkError(err);
 
+    int command_output = system("pacmd load-module module-null-sink sink_name=ShowTime_Virtual_Input sink_properties=device.description=ShowTime_Virtual_Input");
+
+    if (command_output != 0) {
+        std::cerr << "Error: Failed to create virtual input." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     int numDevices = Pa_GetDeviceCount();
 
     std::cout << "Number of devices: " << numDevices << std::endl;
@@ -124,6 +131,13 @@ int main()
 
     err = Pa_Terminate();
     checkError(err);
+
+    command_output = system("pacmd unload-module module-null-sink");
+
+    if (command_output != 0) {
+        std::cerr << "Error: Failed to unload virtual input." << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
     return EXIT_SUCCESS;
 }
