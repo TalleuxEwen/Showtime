@@ -7,11 +7,13 @@
 #include <iostream>
 #include "Equalizer.hpp"
 #include "AudioEngine.hpp"
+#include "ClientCore.hpp"
 
 int main()
 {
-    AudioEngine engine;
-    engine.initialize();
+    std::shared_ptr<AudioEngine> engine = std::make_shared<AudioEngine>();
+    engine->initialize();
+    ClientCore core(engine);
     Equalizer eq;
     eq.initializeCoefficients();
 
@@ -37,9 +39,11 @@ int main()
 
     int device = Pa_GetDefaultInputDevice();*/
 
-    engine.start();
+    engine->start();
 
-    std::string line;
+
+    core.run();
+    /*std::string line;
     while (std::getline(std::cin, line) && !std::cin.eof()) {
         if (line == "exit")
             break;
@@ -48,9 +52,9 @@ int main()
         } else if (line == "reverb") {
             engine.reverb = !engine.reverb;
         }
-    }
+    }*/
 
-    engine.stop();
+    engine->stop();
 
     return EXIT_SUCCESS;
 }

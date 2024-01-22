@@ -25,13 +25,25 @@ class AudioEngine {
         void start();
         void stop();
 
+        void setVolume(int volume_to_set) {
+            this->volume = volume_to_set;
+        }
+
+        int getVolume() const {
+            return this->volume;
+        }
+
         bool reverb = false;
+
+        float *inputBuffer;
+        float *outputBuffer;
 
     private:
         PaStreamParameters inputParameters;
         PaStreamParameters outputParameters;
         PaStream *stream;
         int device = 0;
+        int volume = 100;
 };
 
 static int callback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
@@ -40,7 +52,7 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
     auto* engine = (AudioEngine*)userData;
 
     int dispSize = 100;
-    printf("\r");
+    //printf("\r");
 
     float vol_l = 0;
     float vol_r = 0;
@@ -50,7 +62,16 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
         vol_r = max(vol_r, std::abs(in[i+1]));
     }
 
-    for (int i = 0; i < dispSize; i++) {
+    engine->inputBuffer = (float*)inputBuffer;
+
+    std::cout << engine->getVolume() << std::endl;
+    std::cout << (float)engine->getVolume() / 100.f << std::endl;
+
+    for (int i = 0; i < framesPerBuffer * 2; i++) {
+        ((float *)inputBuffer)[i] = ((float *)inputBuffer)[i] * (float)((float)engine->getVolume() / 100.f);
+    }
+
+    /*for (int i = 0; i < dispSize; i++) {
         float barProportion = i / (float)dispSize;
         if (barProportion <= vol_l && barProportion <= vol_r) {
             printf("█");
@@ -63,7 +84,7 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
         }
     }
 
-    fflush(stdout);
+    fflush(stdout);*/
 
     if (engine->reverb) {
         for (int i = 0; i < framesPerBuffer * 2; i++) {
@@ -72,6 +93,8 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
     } else {
         memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
     }
+
+    engine->outputBuffer = (float*)outputBuffer;
 
     return paContinue;
 }

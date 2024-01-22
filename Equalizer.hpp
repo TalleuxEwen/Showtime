@@ -5,10 +5,11 @@
 #pragma once
 
 #include <cmath>
+#include <iostream>
 
 #define bufferSize 1024
 #define centerFrequency (float)2000.0
-#define Q (float)5.0
+#define monQ (float)5.0
 #define gain (float)0.005
 
 class Equalizer {
@@ -49,7 +50,7 @@ public:
 
     void initializeCoefficients() {
         float w0 = (float)2.0 * (float)M_PI * centerFrequency / sampleRate;
-        float alpha = sinf(w0) / (float)(2.0 * Q);
+        float alpha = sinf(w0) / (float)(2.0 * monQ);
 
         b0 = (float)1.0 + alpha * gain;
         b1 = (float)-2.0 * cosf(w0);
