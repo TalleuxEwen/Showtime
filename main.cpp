@@ -6,90 +6,16 @@
 #include <portaudio.h>
 #include <iostream>
 #include "Equalizer.hpp"
-
-bool reverb = false;
-
-static void checkError(PaError err)
-{
-    if (err != paNoError) {
-        std::cerr << "Error: " << Pa_GetErrorText(err) << std::endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
-static float max(float a, float b)
-{
-    return a > b ? a : b;
-}
-
-static int callback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
-                    const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
-{
-    auto *eq = (Equalizer*)userData;
-    auto* in = (float*)inputBuffer;
-
-    int dispSize = 100;
-    printf("\r");
-
-    float vol_l = 0;
-    float vol_r = 0;
-
-    for (unsigned long i = 0; i < framesPerBuffer * 2; i += 2) {
-        vol_l = max(vol_l, std::abs(in[i]));
-        vol_r = max(vol_r, std::abs(in[i+1]));
-    }
-
-    for (int i = 0; i < dispSize; i++) {
-        float barProportion = i / (float)dispSize;
-        if (barProportion <= vol_l && barProportion <= vol_r) {
-            printf("█");
-        } else if (barProportion <= vol_l) {
-            printf("▀");
-        } else if (barProportion <= vol_r) {
-            printf("▄");
-        } else {
-            printf(" ");
-        }
-    }
-
-    fflush(stdout);
-
-    if (eq->isActive()) {
-        eq->processBuffer((float*)inputBuffer);
-    }
-    if (reverb) {
-        for (int i = 0; i < framesPerBuffer * 2; i++) {
-            ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * (float)0.6 + ((float *)outputBuffer)[i] * (float)0.65;
-        }
-    } else {
-        memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
-    }
-
-
-    //memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
-
-    return 0;
-}
+#include "AudioEngine.hpp"
 
 int main()
 {
-    std::cout << sizeof(float) << std::endl;
-    std::cout << sizeof(double) << std::endl;
-
-    PaError err = Pa_Initialize();
-    checkError(err);
-
+    AudioEngine engine;
+    engine.initialize();
     Equalizer eq;
     eq.initializeCoefficients();
 
-    int command_output = system("pacmd load-module module-null-sink sink_name=ShowTime_Virtual_Input sink_properties=device.description=ShowTime_Virtual_Input");
-
-    if (command_output != 0) {
-        std::cerr << "Error: Failed to create virtual input." << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    int numDevices = Pa_GetDeviceCount();
+    /*int numDevices = Pa_GetDeviceCount();
 
     std::cout << "Number of devices: " << numDevices << std::endl;
 
@@ -109,36 +35,9 @@ int main()
         std::cout << "\tDefault sample rate: " << deviceInfo->defaultSampleRate << std::endl;
     }
 
-    int device = Pa_GetDefaultInputDevice();
+    int device = Pa_GetDefaultInputDevice();*/
 
-    std::cout << "Using device " << device << std::endl;
-
-    PaStreamParameters inputParameters;
-    PaStreamParameters outputParameters;
-
-    memset(&inputParameters, 0, sizeof(inputParameters));
-    memset(&outputParameters, 0, sizeof(outputParameters));
-
-    inputParameters.device = device;
-    inputParameters.channelCount = 2;
-    inputParameters.sampleFormat = paFloat32;
-    inputParameters.hostApiSpecificStreamInfo = nullptr;
-    inputParameters.suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowInputLatency;
-
-    outputParameters.device = device;
-    outputParameters.channelCount = 2;
-    outputParameters.sampleFormat = paFloat32;
-    outputParameters.hostApiSpecificStreamInfo = nullptr;
-    outputParameters.suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowOutputLatency;
-
-
-
-    PaStream *stream;
-    err = Pa_OpenStream(&stream, &inputParameters, &outputParameters, 44100, 1024, paClipOff, callback, &eq);
-    checkError(err);
-
-    err = Pa_StartStream(stream);
-    checkError(err);
+    engine.start();
 
     std::string line;
     while (std::getline(std::cin, line) && !std::cin.eof()) {
@@ -147,25 +46,11 @@ int main()
         else if (line == "eq") {
             eq.setActive(!eq.isActive());
         } else if (line == "reverb") {
-            reverb = !reverb;
+            engine.reverb = !engine.reverb;
         }
     }
 
-    err = Pa_StopStream(stream);
-    checkError(err);
-
-    err = Pa_CloseStream(stream);
-    checkError(err);
-
-    err = Pa_Terminate();
-    checkError(err);
-
-    command_output = system("pacmd unload-module module-null-sink");
-
-    if (command_output != 0) {
-        std::cerr << "Error: Failed to unload virtual input." << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    engine.stop();
 
     return EXIT_SUCCESS;
 }

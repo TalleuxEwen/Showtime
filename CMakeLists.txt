@@ -16,7 +16,9 @@ if(NOT portaudio_POPULATED)
     add_subdirectory(${portaudio_SOURCE_DIR} ${portaudio_BINARY_DIR})
 endif()
 
-add_executable(Showtime main.cpp)
+add_executable(Showtime main.cpp
+        AudioEngine.cpp
+        AudioEngine.hpp)
 
 message(STATUS "portaudio_SOURCE_DIR: ${portaudio_SOURCE_DIR}")
 
