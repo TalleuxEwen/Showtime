@@ -43,8 +43,18 @@ void MenuScene::init_scene()
     std::shared_ptr<SpriteComponent> level_vu_meter_left_output = std::make_shared<SpriteComponent>(_clientCore, _engine);
     std::shared_ptr<SpriteComponent> level_vu_meter_right_output = std::make_shared<SpriteComponent>(_clientCore, _engine);
     std::shared_ptr<SpriteComponent> output_fader_button = std::make_shared<SpriteComponent>(_clientCore, _engine);
+    std::shared_ptr<TextComponent> text_input = std::make_shared<TextComponent>(_clientCore, _engine);
+    std::shared_ptr<TextComponent> text_output = std::make_shared<TextComponent>(_clientCore, _engine);
 
     text->setText("");
+
+    text_input->setText("Input");
+    text_input->setAttribute("text input");
+    text_input->setPosition(sf::Vector2f(10, 450));
+
+    text_output->setText("Output");
+    text_output->setAttribute("text output");
+    text_output->setPosition(sf::Vector2f(700, 450));
 
 
     button_reverb->addActionTarget(text);
@@ -54,9 +64,11 @@ void MenuScene::init_scene()
     button_reverb->addActionTarget(sound);
     std::function<void()> handleClick = std::bind(&ButtonComponent::setSoundCallback, button_reverb);
     button_reverb->setCallback(handleClick);
+    button_reverb->setSize(sf::Vector2f(0.3, 0.3));
+    button_reverb->setPosition(sf::Vector2f(300, 200));
     text_button_reverb->setText("Reverb Off");
     text_button_reverb->setAttribute("text reverb");
-    text_button_reverb->setPosition(sf::Vector2f(275, 190));
+    text_button_reverb->setPosition(sf::Vector2f(330, 225));
 
     //input_volume->setPosition(sf::Vector2f(150, 380));
     port_input->setPosition(sf::Vector2f(150, 475));
@@ -146,6 +158,8 @@ void MenuScene::init_scene()
     addComponent(level_vu_meter_left_output);
     addComponent(level_vu_meter_right_output);
     addComponent(output_fader_button);
+    addComponent(text_input);
+    addComponent(text_output);
 }
 
 /**

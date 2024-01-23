@@ -34,18 +34,20 @@ class AudioEngine {
         }
 
         bool reverb = false;
-        float reverberation = 0.6;
-        float reverb_decay = 0.65;
+        float reverberation = 1.0;
+        float reverb_decay = 0.5;
+        int reverb_delay = 1024;
 
         float *inputBuffer;
         float *outputBuffer;
+        float *reverbBuffer;
 
     private:
         PaStreamParameters inputParameters;
         PaStreamParameters outputParameters;
         PaStream *stream;
         int device = 0;
-        int volume = 100;
+        int volume = 0;
 };
 
 static int callback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
@@ -64,8 +66,9 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
         vol_r = max(vol_r, std::abs(in[i+1]));
     }
 
-    engine->inputBuffer = (float*)inputBuffer;
 
+
+    engine->inputBuffer = (float*)inputBuffer;
     //std::cout << engine->getVolume() << std::endl;
     //std::cout << (float)engine->getVolume() / 100.f << std::endl;
 
@@ -89,14 +92,31 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
     fflush(stdout);*/
 
     if (engine->reverb) {
+
         for (int i = 0; i < framesPerBuffer * 2; i++) {
-            ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i] * engine->reverb_decay;
+            if (engine->reverb_delay == framesPerBuffer) {
+                ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i] * engine->reverb_decay;
+            } else if (engine->reverb_delay < framesPerBuffer) {
+                if (i < engine->reverb_delay) {
+                    ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i + framesPerBuffer - engine->reverb_delay] * engine->reverb_decay;
+                } else {
+                    ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i - engine->reverb_delay] * engine->reverb_decay;
+                }
+            } else {
+                if (i < framesPerBuffer - engine->reverb_delay) {
+                    ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i + engine->reverb_delay] * engine->reverb_decay;
+                } else {
+                    ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i - framesPerBuffer + engine->reverb_delay] * engine->reverb_decay;
+                }
+            }
+            /*((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i] * engine->reverb_decay;*/
         }
     } else {
         memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
     }
 
     engine->outputBuffer = (float*)outputBuffer;
+    engine->reverbBuffer = (float*)inputBuffer;
 
     return paContinue;
 }

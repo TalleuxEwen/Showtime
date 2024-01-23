@@ -44,9 +44,11 @@ void SpriteComponent::handleEvent(const sf::Event &event, sf::RenderWindow &wind
 {
     if (getAttribute() != "output fader button")
         return;
-    if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Left) {
-            _isClicked = true;
+    if (_sprite.getGlobalBounds().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
+        if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                _isClicked = true;
+            }
         }
     }
     if (event.type == sf::Event::MouseButtonReleased) {
