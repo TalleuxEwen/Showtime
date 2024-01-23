@@ -135,8 +135,18 @@ void ButtonComponent::defaultCallback()
 }
 
 void ButtonComponent::setSoundCallback() {
+    _engine->reverb = !_engine->reverb;
     for (auto &component : action_target) {
-        if (component->getType() == ComponentType::INPUT) {
+        if (component->getType() == ComponentType::TEXT) {
+            if (component->getAttribute() == "text reverb") {
+                auto text = std::dynamic_pointer_cast<TextComponent>(component);
+                if (_engine->reverb)
+                    text->setText("Reverb On");
+                else
+                    text->setText("Reverb Off");
+            }
+        }
+        /*if (component->getType() == ComponentType::INPUT) {
             if (component->getAttribute() == "input volume") {
                 auto input = std::dynamic_pointer_cast<InputComponent>(component);
                 std::string volume = input->getText();
@@ -155,7 +165,7 @@ void ButtonComponent::setSoundCallback() {
 
                 _engine->setVolume(volumeInt);
             }
-        }
+        }*/
     }
     for (auto &component : action_target) {
         if (component->getType() == ComponentType::SOUND) {

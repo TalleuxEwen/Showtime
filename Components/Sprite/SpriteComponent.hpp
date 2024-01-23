@@ -93,4 +93,5 @@ class SpriteComponent : public AComponent
     sf::Vector2f _position;
     sf::Vector2f _size;
     sf::IntRect _rect;
+    bool _isClicked;
 };

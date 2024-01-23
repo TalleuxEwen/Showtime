@@ -34,6 +34,8 @@ class AudioEngine {
         }
 
         bool reverb = false;
+        float reverberation = 0.6;
+        float reverb_decay = 0.65;
 
         float *inputBuffer;
         float *outputBuffer;
@@ -64,8 +66,8 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
 
     engine->inputBuffer = (float*)inputBuffer;
 
-    std::cout << engine->getVolume() << std::endl;
-    std::cout << (float)engine->getVolume() / 100.f << std::endl;
+    //std::cout << engine->getVolume() << std::endl;
+    //std::cout << (float)engine->getVolume() / 100.f << std::endl;
 
     for (int i = 0; i < framesPerBuffer * 2; i++) {
         ((float *)inputBuffer)[i] = ((float *)inputBuffer)[i] * (float)((float)engine->getVolume() / 100.f);
@@ -88,7 +90,7 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
 
     if (engine->reverb) {
         for (int i = 0; i < framesPerBuffer * 2; i++) {
-            ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * (float)0.6 + ((float *)outputBuffer)[i] * (float)0.65;
+            ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i] * engine->reverb_decay;
         }
     } else {
         memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));

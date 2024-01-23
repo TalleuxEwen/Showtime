@@ -42,6 +42,28 @@ void SpriteComponent::display(sf::RenderWindow &window)
 
 void SpriteComponent::handleEvent(const sf::Event &event, sf::RenderWindow &window)
 {
+    if (getAttribute() != "output fader button")
+        return;
+    if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            _isClicked = true;
+        }
+    }
+    if (event.type == sf::Event::MouseButtonReleased) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            _isClicked = false;
+        }
+    }
+    if (event.type == sf::Event::MouseMoved) {
+        if (_isClicked && event.mouseMove.y < 365 && event.mouseMove.y > 0) {
+            _position.y = event.mouseMove.y;
+            _sprite.setPosition(_position);
+
+            //if _position.y == 365 volume is 0 and if _position.y == 0 volume is 100
+            int volume = 100 - (_position.y * 100 / 365);
+            _engine->setVolume(volume);
+        }
+    }
 }
 
 /**
