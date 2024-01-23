@@ -94,3 +94,7 @@ void SpriteComponent::setPosition(float x, float y)
     _position = sf::Vector2f(x, y);
     _sprite.setPosition(_position);
 }
+
+void SpriteComponent::setOpacity(char opacity) {
+    _sprite.setColor(sf::Color(255, 255, 255, opacity));
+}

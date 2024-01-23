@@ -38,6 +38,9 @@ void MenuScene::init_scene()
     std::shared_ptr<SoundComponent> sound = std::make_shared<SoundComponent>(_clientCore, _engine);
     std::shared_ptr<TextComponent> text_left_stereo = std::make_shared<TextComponent>(_clientCore, _engine);
     std::shared_ptr<TextComponent> text_right_stereo = std::make_shared<TextComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> sprite = std::make_shared<SpriteComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> level_vu_meter_left = std::make_shared<SpriteComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> level_vu_meter_right = std::make_shared<SpriteComponent>(_clientCore, _engine);
 
     text->setText("");
 
@@ -72,6 +75,31 @@ void MenuScene::init_scene()
     text_right_stereo->setText("Stereo right : ");
     text_right_stereo->setPosition(sf::Vector2f(0, 500));
 
+    sf::Texture texture;
+    texture.loadFromFile("assets/vumeter.jpg");
+    sprite->setTexture(texture);
+    sprite->setPosition(sf::Vector2f(0, 0));
+    sprite->setSize(sf::Vector2f(42, 407));
+    sprite->setRect(sf::IntRect(0, 0, 84, 814));
+
+    sf::Texture texture_vu_meter_left;
+    texture_vu_meter_left.loadFromFile("assets/black.jpg");
+    level_vu_meter_left->setTexture(texture_vu_meter_left);
+    level_vu_meter_left->setAttribute("level vu meter left");
+    level_vu_meter_left->setPosition(sf::Vector2f(0, 0));
+    level_vu_meter_left->setSize(sf::Vector2f(22, 407));
+    level_vu_meter_left->setRect(sf::IntRect(0, 0, 84, 84));
+    level_vu_meter_left->setOpacity(200);
+
+    sf::Texture texture_vu_meter_right;
+    texture_vu_meter_right.loadFromFile("assets/black.jpg");
+    level_vu_meter_right->setTexture(texture_vu_meter_right);
+    level_vu_meter_right->setAttribute("level vu meter right");
+    level_vu_meter_right->setPosition(sf::Vector2f(22, 0));
+    level_vu_meter_right->setSize(sf::Vector2f(22, 200));
+    level_vu_meter_right->setRect(sf::IntRect(0, 0, 84, 84));
+    level_vu_meter_right->setOpacity(200);
+
     //addComponent(text);
     addComponent(button_volume);
     addComponent(text_button_volume);
@@ -80,6 +108,9 @@ void MenuScene::init_scene()
 //    addComponent(sound);
     addComponent(text_left_stereo);
     addComponent(text_right_stereo);
+    addComponent(sprite);
+    addComponent(level_vu_meter_left);
+    addComponent(level_vu_meter_right);
 }
 
 /**
@@ -134,6 +165,16 @@ void MenuScene::update() {
         } else if (component->getAttribute() == "text right") {
             auto text = std::dynamic_pointer_cast<TextComponent>(component);
             text->setText("Stereo right : " + std::to_string(vol_r_percent) + "%");
+        }
+    }
+
+    for (auto &component : _components) {
+        if (component->getAttribute() == "level vu meter left") {
+            auto sprite = std::dynamic_pointer_cast<SpriteComponent>(component);
+            sprite->setSize(sf::Vector2f(22, 407 * ((float)abs(vol_l_percent - 100) / 100.f)));
+        } else if (component->getAttribute() == "level vu meter right") {
+            auto sprite = std::dynamic_pointer_cast<SpriteComponent>(component);
+            sprite->setSize(sf::Vector2f(22, 407 * ((float)abs(vol_r_percent - 100) / 100.f)));
         }
     }
 }

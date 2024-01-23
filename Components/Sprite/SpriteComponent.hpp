@@ -85,6 +85,8 @@ class SpriteComponent : public AComponent
      */
     void handleEvent(const sf::Event &event, sf::RenderWindow &window) override;
 
+    void setOpacity(char opacity);
+
   private:
     sf::Texture _texture;
     sf::Sprite _sprite;
