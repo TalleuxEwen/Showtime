@@ -37,6 +37,8 @@ class AudioEngine {
         float reverberation = 1.0;
         float reverb_decay = 0.5;
         int reverb_delay = 1024;
+        float gain = 1.0;
+        float pan = 0.0;
 
         float *inputBuffer;
         float *outputBuffer;
@@ -103,11 +105,9 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
                     ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i - engine->reverb_delay] * engine->reverb_decay;
                 }
             } else {
-                if (i < framesPerBuffer - engine->reverb_delay) {
-                    ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i + engine->reverb_delay] * engine->reverb_decay;
-                } else {
-                    ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i - framesPerBuffer + engine->reverb_delay] * engine->reverb_decay;
-                }
+                /*int index = i - engine->reverb_delay + framesPerBuffer;
+                ((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)engine->reverbBuffer)[index] * engine->reverb_decay;
+            */
             }
             /*((float *)outputBuffer)[i] = ((float *)inputBuffer)[i] * engine->reverberation + ((float *)outputBuffer)[i] * engine->reverb_decay;*/
         }
@@ -115,8 +115,21 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
         memcpy(outputBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
     }
 
+    for (int i = 0; i < framesPerBuffer * 2; i++) {
+        ((float *)outputBuffer)[i] = ((float *)outputBuffer)[i] * engine->gain;
+    }
+
+    for (int i = 0; i < framesPerBuffer * 2; i += 2) {
+        if (engine->pan > 0) {
+            ((float *)outputBuffer)[i] = ((float *)outputBuffer)[i] * (1.f - engine->pan);
+        } else if (engine->pan < 0) {
+            ((float *)outputBuffer)[i + 1] = ((float *)outputBuffer)[i + 1] * (1.f + engine->pan);
+        }
+    }
+
     engine->outputBuffer = (float*)outputBuffer;
-    engine->reverbBuffer = (float*)inputBuffer;
+
+    //memcpy(&engine->reverbBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
 
     return paContinue;
 }

@@ -30,6 +30,11 @@ void AudioEngine::initialize() {
     memset(&inputParameters, 0, sizeof(inputParameters));
     memset(&outputParameters, 0, sizeof(outputParameters));
 
+    reverbBuffer = static_cast<float *>(malloc(sizeof(float) * 1024 * 2));
+
+    memset(&reverbBuffer, 0, sizeof(reverbBuffer));
+
+
     device = Pa_GetDefaultInputDevice();
 
     inputParameters.device = device;

@@ -24,7 +24,7 @@ ClientCore::ClientCore(std::shared_ptr<AudioEngine> audioEngine) : _audioEngine(
  */
 void ClientCore::run()
 {
-    _window.create(sf::VideoMode(800, 600), "R-Type");
+    _window.create(sf::VideoMode(800, 600), "ShowTime");
     sf::Event event{};
 
     _window.setFramerateLimit(120);

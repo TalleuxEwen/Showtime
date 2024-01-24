@@ -87,11 +87,15 @@ class SpriteComponent : public AComponent
 
     void setOpacity(char opacity);
 
+    void setRotation(float angle);
+
+    void setOrigin(float x, float y);
+
   private:
     sf::Texture _texture;
     sf::Sprite _sprite;
     sf::Vector2f _position;
     sf::Vector2f _size;
     sf::IntRect _rect;
-    bool _isClicked;
+    bool _isClicked = false;
 };

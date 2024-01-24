@@ -5,7 +5,7 @@
 #include <cstring>
 #include <portaudio.h>
 #include <iostream>
-#include "Equalizer.hpp"
+//#include "Equalizer.hpp"
 #include "AudioEngine.hpp"
 #include "ClientCore.hpp"
 
@@ -14,8 +14,8 @@ int main()
     std::shared_ptr<AudioEngine> engine = std::make_shared<AudioEngine>();
     engine->initialize();
     ClientCore core(engine);
-    Equalizer eq;
-    eq.initializeCoefficients();
+    //Equalizer eq;
+    //eq.initializeCoefficients();
 
     /*int numDevices = Pa_GetDeviceCount();
 

@@ -45,6 +45,10 @@ void MenuScene::init_scene()
     std::shared_ptr<SpriteComponent> output_fader_button = std::make_shared<SpriteComponent>(_clientCore, _engine);
     std::shared_ptr<TextComponent> text_input = std::make_shared<TextComponent>(_clientCore, _engine);
     std::shared_ptr<TextComponent> text_output = std::make_shared<TextComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> gain_button = std::make_shared<SpriteComponent>(_clientCore, _engine);
+    std::shared_ptr<TextComponent> text_gain = std::make_shared<TextComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> pan_button = std::make_shared<SpriteComponent>(_clientCore, _engine);
+    std::shared_ptr<TextComponent> text_pan = std::make_shared<TextComponent>(_clientCore, _engine);
 
     text->setText("");
 
@@ -144,6 +148,33 @@ void MenuScene::init_scene()
     output_fader_button->setRect(sf::IntRect(0, 0, 84, 84));
     output_fader_button->setOpacity(200);
 
+    sf::Texture texture_gain_button;
+    texture_gain_button.loadFromFile("assets/turnable_button.png");
+    gain_button->setTexture(texture_gain_button);
+    gain_button->setAttribute("gain button");
+    gain_button->setPosition(sf::Vector2f(550, 350));
+    gain_button->setSize(sf::Vector2f(84, 84));
+    gain_button->setRect(sf::IntRect(0, 0, 84, 84));
+    gain_button->setOrigin(42, 42);
+    gain_button->setRotation(-90);
+
+    text_gain->setText("Gain");
+    text_gain->setAttribute("text gain");
+    text_gain->setPosition(sf::Vector2f(525, 425));
+
+    sf::Texture texture_pan_button;
+    texture_pan_button.loadFromFile("assets/turnable_button.png");
+    pan_button->setTexture(texture_pan_button);
+    pan_button->setAttribute("pan button");
+    pan_button->setPosition(sf::Vector2f(250, 350));
+    pan_button->setSize(sf::Vector2f(84, 84));
+    pan_button->setRect(sf::IntRect(0, 0, 84, 84));
+    pan_button->setOrigin(42, 42);
+    pan_button->setRotation(0);
+
+    text_pan->setText("Pan");
+    text_pan->setAttribute("text pan");
+    text_pan->setPosition(sf::Vector2f(225, 425));
 
     //addComponent(text);
     addComponent(button_reverb);
@@ -160,6 +191,10 @@ void MenuScene::init_scene()
     addComponent(output_fader_button);
     addComponent(text_input);
     addComponent(text_output);
+    addComponent(gain_button);
+    addComponent(text_gain);
+    addComponent(pan_button);
+    addComponent(text_pan);
 }
 
 /**
