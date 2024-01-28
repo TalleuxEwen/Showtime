@@ -33,6 +33,9 @@ void MenuScene::init_scene()
     std::shared_ptr<TextComponent> text = std::make_shared<TextComponent>(_clientCore, _engine);
     std::shared_ptr<ButtonComponent> button_reverb = std::make_shared<ButtonComponent>(_clientCore, _engine);
     std::shared_ptr<TextComponent> text_button_reverb = std::make_shared<TextComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> reverb_level = std::make_shared<SpriteComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> reverb_decay = std::make_shared<SpriteComponent>(_clientCore, _engine);
+    std::shared_ptr<SpriteComponent> reverb_reverberation = std::make_shared<SpriteComponent>(_clientCore, _engine);
     //std::shared_ptr<InputComponent> input_volume = std::make_shared<InputComponent>(_clientCore, _engine);
     std::shared_ptr<InputComponent> port_input = std::make_shared<InputComponent>(_clientCore, _engine);
     std::shared_ptr<SoundComponent> sound = std::make_shared<SoundComponent>(_clientCore, _engine);
@@ -176,6 +179,36 @@ void MenuScene::init_scene()
     text_pan->setAttribute("text pan");
     text_pan->setPosition(sf::Vector2f(225, 425));
 
+    sf::Texture texture_reverb_level;
+    texture_reverb_level.loadFromFile("assets/turnable_button.png");
+    reverb_level->setTexture(texture_reverb_level);
+    reverb_level->setAttribute("reverb level");
+    reverb_level->setPosition(sf::Vector2f(400, 100));
+    reverb_level->setSize(sf::Vector2f(84, 84));
+    reverb_level->setRect(sf::IntRect(0, 0, 84, 84));
+    reverb_level->setOrigin(42, 42);
+    reverb_level->setRotation(-90);
+
+    sf::Texture texture_reverb_decay;
+    texture_reverb_decay.loadFromFile("assets/turnable_button.png");
+    reverb_decay->setTexture(texture_reverb_decay);
+    reverb_decay->setAttribute("reverb decay");
+    reverb_decay->setPosition(sf::Vector2f(300, 150));
+    reverb_decay->setSize(sf::Vector2f(84, 84));
+    reverb_decay->setRect(sf::IntRect(0, 0, 84, 84));
+    reverb_decay->setOrigin(42, 42);
+    reverb_decay->setRotation(-90);
+
+    sf::Texture texture_reverb_reverberation;
+    texture_reverb_reverberation.loadFromFile("assets/turnable_button.png");
+    reverb_reverberation->setTexture(texture_reverb_reverberation);
+    reverb_reverberation->setAttribute("reverb reverberation");
+    reverb_reverberation->setPosition(sf::Vector2f(500, 150));
+    reverb_reverberation->setSize(sf::Vector2f(84, 84));
+    reverb_reverberation->setRect(sf::IntRect(0, 0, 84, 84));
+    reverb_reverberation->setOrigin(42, 42);
+    reverb_reverberation->setRotation(_engine->reverberation * 1.8f - 90.f);
+
     //addComponent(text);
     addComponent(button_reverb);
     addComponent(text_button_reverb);
@@ -195,6 +228,9 @@ void MenuScene::init_scene()
     addComponent(text_gain);
     addComponent(pan_button);
     addComponent(text_pan);
+    addComponent(reverb_level);
+    addComponent(reverb_decay);
+    addComponent(reverb_reverberation);
 }
 
 /**

@@ -138,6 +138,114 @@ void SpriteComponent::handleEvent(const sf::Event &event, sf::RenderWindow &wind
             }
         }
     }
+    if (getAttribute() == "reverb level") {
+        if (_sprite.getGlobalBounds().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    _isClicked = true;
+                }
+            }
+        }
+        if (event.type == sf::Event::MouseButtonReleased) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                _isClicked = false;
+            }
+        }
+        if (event.type == sf::Event::MouseMoved) {
+            if (_isClicked && event.mouseMove.y < _position.y + 10 && event.mouseMove.y > _position.y - 160) {
+                float percent = 100 - ((event.mouseMove.y - (_position.y - 150)) * 100 / 150);
+
+                if (percent > 100)
+                    percent = 100;
+                else if (percent < 0)
+                    percent = 0;
+
+                //reverb is a int between 0 and 15
+
+                int reverb = int(percent) * 15 / 100;
+
+                std::cout << reverb << std::endl;
+
+                _engine->reverb_delay = reverb;
+
+                //if percent is 0 rotation is -90 and if percent is 100 rotation is 90
+                setRotation(percent * 1.8f - 90.f);
+
+            }
+        }
+    }
+    if (getAttribute() == "reverb decay") {
+        if (_sprite.getGlobalBounds().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    _isClicked = true;
+                }
+            }
+        }
+        if (event.type == sf::Event::MouseButtonReleased) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                _isClicked = false;
+            }
+        }
+        if (event.type == sf::Event::MouseMoved) {
+            if (_isClicked && event.mouseMove.y < _position.y + 10 && event.mouseMove.y > _position.y - 160) {
+                float percent = 100 - ((event.mouseMove.y - (_position.y - 150)) * 100 / 150);
+
+                if (percent > 100)
+                    percent = 100;
+                else if (percent < 0)
+                    percent = 0;
+
+                //reverb is a int between 0 and 1
+
+                float reverb = percent / 100;
+
+                std::cout << reverb << std::endl;
+
+                _engine->reverb_decay = reverb;
+
+                //if percent is 0 rotation is -90 and if percent is 100 rotation is 90
+                setRotation(percent * 1.8f - 90.f);
+
+            }
+        }
+    }
+    if (getAttribute() == "reverb reverberation") {
+        if (_sprite.getGlobalBounds().contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    _isClicked = true;
+                }
+            }
+        }
+        if (event.type == sf::Event::MouseButtonReleased) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                _isClicked = false;
+            }
+        }
+        if (event.type == sf::Event::MouseMoved) {
+            if (_isClicked && event.mouseMove.y < _position.y + 10 && event.mouseMove.y > _position.y - 160) {
+                float percent = 100 - ((event.mouseMove.y - (_position.y - 150)) * 100 / 150);
+
+                if (percent > 100)
+                    percent = 100;
+                else if (percent < 0)
+                    percent = 0;
+
+                //reverb is a int between 0 and 1.5
+
+                float reverb = percent * 1.5 / 100;
+
+                std::cout << reverb << std::endl;
+
+                _engine->reverberation = reverb;
+
+                //if percent is 0 rotation is -90 and if percent is 100 rotation is 90
+                setRotation(percent * 1.8f - 90.f);
+
+            }
+        }
+    }
 }
 
 /**
