@@ -8,6 +8,8 @@ ServerSocket::ServerSocket()
 {
     _port = 6969;
     _socket = socket(AF_INET, SOCK_STREAM, 0);
+    setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &_socket, sizeof(_socket));
+    setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, &_socket, sizeof(_socket));
     if (_socket == 0)
     {
         std::cerr << "Socket creation failed" << std::endl;

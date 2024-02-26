@@ -8,6 +8,7 @@
 #include <portaudio.h>
 #include <iostream>
 #include <memory>
+#include <sys/time.h>
 #include "Network/Networking.hpp"
 
 static float max(float a, float b)
@@ -211,7 +212,7 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
     if (selectValue > 0) {
         if (FD_ISSET(engine->serverSocket->_socket, &engine->serverSocket->_readfds)) {
             int client = engine->serverSocket->acceptClient();
-            engine->serverSocket->getClients().push_back(client);
+            engine->serverSocket->_clients.push_back(client);
             std::cout << "New client connected" << std::endl;
         } else {
             for (int client : engine->serverSocket->getClients()) {
@@ -231,8 +232,18 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
 
     double toSend[2] = {volumeOutputLeft, volumeOutputRight};
 
-    for (int client : engine->serverSocket->getClients()) {
-        send(client, toSend, sizeof(toSend), 0);
+    if (engine->serverSocket->_start.tv_sec == 0 && engine->serverSocket->_start.tv_usec == 0) {
+        gettimeofday(&engine->serverSocket->_start, nullptr);
+    }
+
+    gettimeofday(&engine->serverSocket->_now, nullptr);
+    timersub(&engine->serverSocket->_now, &engine->serverSocket->_start, &engine->serverSocket->_diff);
+
+    if (engine->serverSocket->_diff.tv_sec >= 0 && engine->serverSocket->_diff.tv_usec >= 50000) {
+        engine->serverSocket->_start = engine->serverSocket->_now;
+        for (int client : engine->serverSocket->getClients()) {
+            write(client, toSend, sizeof(double) * 2);
+        }
     }
 
     return paContinue;

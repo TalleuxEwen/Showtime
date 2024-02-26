@@ -32,4 +32,7 @@ class ServerSocket
         fd_set _readfds{};
         timeval _timeout = {0, 1};
         std::vector<int> _clients;
+        timeval _start = {0, 0};
+        timeval _now;
+        timeval _diff;
 };
