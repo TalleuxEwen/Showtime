@@ -7,6 +7,8 @@
 #include <cstring>
 #include <portaudio.h>
 #include <iostream>
+#include <memory>
+#include "Network/Networking.hpp"
 
 static float max(float a, float b)
 {
@@ -20,6 +22,7 @@ class AudioEngine {
 
         void checkError(PaError err);
         void initialize();
+        void displayDevices();
         void createVirtualDevice();
         void killVirtualDevice();
         void start();
@@ -46,6 +49,7 @@ class AudioEngine {
         float **reverbBuffer = nullptr;
         float *reverbOutputBuffer = nullptr;
 
+        std::shared_ptr<ServerSocket> serverSocket;
     private:
         PaStreamParameters inputParameters;
         PaStreamParameters outputParameters;
@@ -193,6 +197,43 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
         memcpy(engine->reverbBuffer[0], inputBuffer, framesPerBuffer * 2 * sizeof(float));
 
     //memcpy(&engine->reverbBuffer, inputBuffer, framesPerBuffer * 2 * sizeof(float));
+
+    double volumeOutputLeft = 0;
+    double volumeOutputRight = 0;
+
+    for (int i = 0; i < framesPerBuffer * 2; i += 2) {
+        volumeOutputLeft = max((float) volumeOutputLeft, std::abs(((float *)outputBuffer)[i]));
+        volumeOutputRight = max((float) volumeOutputRight, std::abs(((float *)outputBuffer)[i + 1]));
+    }
+
+    engine->serverSocket->setFDset();
+    int selectValue = engine->serverSocket->selectFd();
+    if (selectValue > 0) {
+        if (FD_ISSET(engine->serverSocket->_socket, &engine->serverSocket->_readfds)) {
+            int client = engine->serverSocket->acceptClient();
+            engine->serverSocket->getClients().push_back(client);
+            std::cout << "New client connected" << std::endl;
+        } else {
+            for (int client : engine->serverSocket->getClients()) {
+                if (FD_ISSET(client, &engine->serverSocket->_readfds)) {
+                    char buffer[1024] = {0};
+                    size_t valread = read(client, buffer, 1024);
+                    std::cout << buffer << std::endl;
+                }
+            }
+        }
+    } else if (selectValue == 0) {
+        //std::cerr << "Timeout occurred! No data after 1 second" << std::endl;
+    } else {
+        std::cerr << "Select failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    double toSend[2] = {volumeOutputLeft, volumeOutputRight};
+
+    for (int client : engine->serverSocket->getClients()) {
+        send(client, toSend, sizeof(toSend), 0);
+    }
 
     return paContinue;
 }

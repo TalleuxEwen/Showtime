@@ -12,7 +12,9 @@
 int main()
 {
     std::shared_ptr<AudioEngine> engine = std::make_shared<AudioEngine>();
+    engine->serverSocket = std::make_shared<ServerSocket>();
     engine->initialize();
+    engine->displayDevices();
     ClientCore core(engine);
     //Equalizer eq;
     //eq.initializeCoefficients();
@@ -55,6 +57,6 @@ int main()
     }*/
 
     engine->stop();
-
+    close(engine->serverSocket->_socket);
     return EXIT_SUCCESS;
 }

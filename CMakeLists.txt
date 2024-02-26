@@ -50,7 +50,9 @@ add_executable(Showtime main.cpp
         Components/Input/InputComponent.hpp
         Components/Input/InputComponent.cpp
         Components/Button/ButtonComponent.hpp
-        Components/Button/ButtonComponent.cpp)
+        Components/Button/ButtonComponent.cpp
+        Network/Networking.cpp
+        Network/Networking.hpp)
 
 message(STATUS "portaudio_SOURCE_DIR: ${portaudio_SOURCE_DIR}")
 
