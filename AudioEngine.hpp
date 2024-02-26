@@ -215,11 +215,19 @@ static int callback(const void *inputBuffer, void *outputBuffer, unsigned long f
             engine->serverSocket->_clients.push_back(client);
             std::cout << "New client connected" << std::endl;
         } else {
-            for (int client : engine->serverSocket->getClients()) {
-                if (FD_ISSET(client, &engine->serverSocket->_readfds)) {
+            auto it = engine->serverSocket->_clients.begin();
+            while (it != engine->serverSocket->_clients.end()) {
+                if (FD_ISSET(*it, &engine->serverSocket->_readfds)) {
                     char buffer[1024] = {0};
-                    size_t valread = read(client, buffer, 1024);
+                    size_t valread = read(*it, buffer, 1024);
+                    if (valread == 0) {
+                        std::cout << "Client disconnected" << std::endl;
+                        it = engine->serverSocket->_clients.erase(it);
+                        close(*it);
+                    }
                     std::cout << buffer << std::endl;
+                } else {
+                    it++;
                 }
             }
         }
